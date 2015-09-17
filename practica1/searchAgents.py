@@ -27,7 +27,7 @@ description.
 Please only change the parts of the file you are asked to.  Look for the lines
 that say
 
-"*** YOUR CODE HERE ***"
+" TODO *** YOUR CODE HERE ***"
 
 The parts you fill in start about 3/4 of the way down.  Follow the project
 description for details.
@@ -288,21 +288,21 @@ class CornersProblem(search.SearchProblem):
         self._expanded = 0 # DO NOT CHANGE; Number of search nodes expanded
         # Please add any code here which you would like to use
         # in initializing the problem
-        "*** YOUR CODE HERE ***"
+        " TODO *** YOUR CODE HERE ***"
 
     def getStartState(self):
         """
         Returns the start state (in your state space, not the full Pacman state
         space)
         """
-        "*** YOUR CODE HERE ***"
+        " TODO *** YOUR CODE HERE ***"
         util.raiseNotDefined()
 
     def isGoalState(self, state):
         """
         Returns whether this search state is a goal state of the problem.
         """
-        "*** YOUR CODE HERE ***"
+        " TODO *** YOUR CODE HERE ***"
         util.raiseNotDefined()
 
     def getSuccessors(self, state):
@@ -325,7 +325,7 @@ class CornersProblem(search.SearchProblem):
             #   nextx, nexty = int(x + dx), int(y + dy)
             #   hitsWall = self.walls[nextx][nexty]
 
-            "*** YOUR CODE HERE ***"
+            " TODO *** YOUR CODE HERE ***"
 
         self._expanded += 1 # DO NOT CHANGE
         return successors
@@ -360,7 +360,7 @@ def cornersHeuristic(state, problem):
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
-    "*** YOUR CODE HERE ***"
+    " TODO *** YOUR CODE HERE ***"
     return 0 # Default to trivial solution
 
 class AStarCornersAgent(SearchAgent):
@@ -454,7 +454,7 @@ def foodHeuristic(state, problem):
     problem.heuristicInfo['wallCount']
     """
     position, foodGrid = state
-    "*** YOUR CODE HERE ***"
+    " TODO *** YOUR CODE HERE ***"
     return 0
 
 class ClosestDotSearchAgent(SearchAgent):
@@ -485,7 +485,7 @@ class ClosestDotSearchAgent(SearchAgent):
         walls = gameState.getWalls()
         problem = AnyFoodSearchProblem(gameState)
 
-        "*** YOUR CODE HERE ***"
+        " TODO *** YOUR CODE HERE ***"
         util.raiseNotDefined()
 
 class AnyFoodSearchProblem(PositionSearchProblem):
@@ -521,7 +521,7 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         """
         x,y = state
 
-        "*** YOUR CODE HERE ***"
+        " TODO *** YOUR CODE HERE ***"
         util.raiseNotDefined()
 
 def mazeDistance(point1, point2, gameState):
