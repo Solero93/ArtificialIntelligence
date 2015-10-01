@@ -62,6 +62,32 @@ class SearchProblem:
         """
         util.raiseNotDefined()
 
+    """
+    Class that represents a Node for searching algorithms like BFS and DFS.
+    """
+class SearchNode():
+    def __init__(self):
+        self.position = None
+        self.action = None
+        self.parent = None
+        
+    def setPosition(self, position):
+        self.position = position
+    def getPosition(self):
+        return self.position
+    
+    def setParent(self, parent):
+        self.parent = parent
+    def getParent(self):
+        return self.parent
+    
+    def setAction(self, action):
+        self.action = action
+    def getAction(self):
+        return self.action
+    
+    def __str__(self):
+        return "POSITION: " + str(self.position) + "\n ACTION: " + str(self.action)
 
 def tinyMazeSearch(problem):
     """
@@ -88,12 +114,56 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
     " TODO *** YOUR CODE HERE ***"
-    util.raiseNotDefined()
-
+    dfsFrontier = util.Stack()
+    
+    currentState = SearchNode()
+    currentState.setPosition(problem.getStartState())
+    
+    dfsFrontier.push(currentState)
+    
+    dfsClosed = []
+    
+    # Mirar transparencias página 56
+    while True:
+        if dfsFrontier.isEmpty(): # If there are no more nodes to explore, return failure 
+            print "DFS didn't find any solution to this problem"
+            exit(0) # FIXME
+        
+        currentState = dfsFrontier.pop() # Pop from Frontier Stack
+        
+        if (problem.isGoalState(currentState))): # If the node is the solution we seek, return node
+            break
+        
+        # See if node was visited before
+        visited = False
+        for closedNode in dfsClosed:
+            if closedNode.getPosition() == successor[0] and closedNode.getAction() == successor[1]: # Check if they have the same state
+                visited = True
+                break
+        # If it was not, treat Node
+        if not visited:
+            for successor in problem.getSuccessors(currentState.getPosition()):
+                tmpNode = SearchNode()
+                tmpNode.setPosition(successor[0])
+                tmpNode.setAction(successor[1])
+                tmpNode.setParent(currentState)
+                dfsFrontier.push(tmpNode)
+        dfsClosed.append(currentState)
+        
+    for elem in dfsClosed:
+        print elem
+    
+    if (dfsFrontier.isEmpty()):
+    else:
+        #TODO reconstruct found solution
+        print "Solved by DFS algorithm"
+    
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     " TODO *** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    util.raiseNotDefined() # Not implemented Yet
+    currentState = problem.getStartState()
+    dfsStack = util.Stack()
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
@@ -111,7 +181,6 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     " TODO *** YOUR CODE HERE ***"
     util.raiseNotDefined()
-
 
 # Abbreviations
 bfs = breadthFirstSearch
