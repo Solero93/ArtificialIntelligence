@@ -62,10 +62,10 @@ class SearchProblem:
         """
         util.raiseNotDefined()
 
+class SearchNode():
     """
     Class that represents a Node for searching algorithms like BFS and DFS.
     """
-class SearchNode():
     def __init__(self):
         self.position = None
         self.action = None
@@ -87,7 +87,13 @@ class SearchNode():
         return self.action
     
     def __str__(self):
-        return "POSITION: " + str(self.position) + "\n ACTION: " + str(self.action)
+        s = " POSITION: " + str(self.position) + "\n ACTION: " + str(self.action)
+        if (self.parent):
+            s+="\n PARENT: " + str(self.parent.getPosition()) + "\n"
+        else:
+            s+="\n PARENT: " + "No parent" + "\n"
+        return s
+
 
 def tinyMazeSearch(problem):
     """
@@ -114,50 +120,58 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
     " TODO *** YOUR CODE HERE ***"
+    # Closed nodes
+    dfsClosed = []
+
+    # Frontier nodes
     dfsFrontier = util.Stack()
-    
     currentState = SearchNode()
     currentState.setPosition(problem.getStartState())
-    
     dfsFrontier.push(currentState)
     
-    dfsClosed = []
-    
-    # Mirar transparencias página 56
+    # Mirar transparencias pagina 56
+    i = 0
     while True:
-        if dfsFrontier.isEmpty(): # If there are no more nodes to explore, return failure 
-            print "DFS didn't find any solution to this problem"
-            exit(0) # FIXME
-        
-        currentState = dfsFrontier.pop() # Pop from Frontier Stack
-        
-        if (problem.isGoalState(currentState))): # If the node is the solution we seek, return node
+    
+        print "\tIteration " + str(i)
+        print "FRONTIER:"
+        printDataStructNodes(dfsFrontier)
+        print "CLOSED:"
+        for elem in dfsClosed:
+            print elem
+        print "\n"
+        i+=1
+    
+        # If empty frontier -> return failure
+        if dfsFrontier.isEmpty():
+            solution = None
+            exit(0)
             break
         
-        # See if node was visited before
+        # Pop Node from Frontier Stack
+        currentState = dfsFrontier.pop()
+
+        # If Node is goal state -> end loop
+        if (problem.isGoalState(currentState)):
+            solution = currentState
+            break
+        
+        # Check if node is in Closed List
         visited = False
         for closedNode in dfsClosed:
-            if closedNode.getPosition() == successor[0] and closedNode.getAction() == successor[1]: # Check if they have the same state
+            if closedNode.getPosition() == successor[0]: #and closedNode.getAction() == successor[1]: # Check if they have the same state
                 visited = True
                 break
-        # If it was not, treat Node
+        # If it is not, add to closed and explore (add its children to frontier)
         if not visited:
+            dfsClosed.append(currentState)
             for successor in problem.getSuccessors(currentState.getPosition()):
                 tmpNode = SearchNode()
                 tmpNode.setPosition(successor[0])
                 tmpNode.setAction(successor[1])
                 tmpNode.setParent(currentState)
                 dfsFrontier.push(tmpNode)
-        dfsClosed.append(currentState)
-        
-    for elem in dfsClosed:
-        print elem
-    
-    if (dfsFrontier.isEmpty()):
-    else:
-        #TODO reconstruct found solution
-        print "Solved by DFS algorithm"
-    
+
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     " TODO *** YOUR CODE HERE ***"
@@ -187,3 +201,12 @@ bfs = breadthFirstSearch
 dfs = depthFirstSearch
 astar = aStarSearch
 ucs = uniformCostSearch
+
+"""
+Auxiliar functions
+"""
+from copy import deepcopy
+def printDataStructNodes(dataStruct):
+    tmpDataStruct = deepcopy(dataStruct)
+    while not tmpDataStruct.isEmpty():
+        print tmpDataStruct.pop()
