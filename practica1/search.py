@@ -70,33 +70,33 @@ class SearchNode():
     Parent -> the Node that it came from
     """
     def __init__(self):
-        self.position = None
-        self.action = None
-        self.parent = None
+        self.__position = None
+        self.__action = None
+        self.__parent = None
         
     def setPosition(self, position):
-        self.position = position
+        self.__position = position
         return self
     def getPosition(self):
-        return self.position
+        return self.__position
     
     def setParent(self, parent):
-        self.parent = parent
+        self.__parent = parent
         return self
     def getParent(self):
-        return self.parent
+        return self.__parent
     
     def setAction(self, action):
-        self.action = action
+        self.__action = action
         return self
     def getAction(self):
-        return self.action
+        return self.__action
     
     # For debugging purposes
     def __str__(self):
-        s = " POSITION: " + str(self.position) + "\n ACTION: " + str(self.action)
-        if (self.parent):
-            s+="\n PARENT: " + str(self.parent.getPosition()) + "\n"
+        s = " POSITION: " + str(self.__position) + "\n ACTION: " + str(self.__action)
+        if (self.__parent):
+            s+="\n PARENT: " + str(self.__parent.getPosition()) + "\n"
         else:
             s+="\n PARENT: " + "No parent" + "\n"
         return s
