@@ -68,11 +68,13 @@ class SearchNode():
     Position -> tuple (i,j) indicating the (x,y) coordinates inside the Pacman Matrix
     Action -> the action that made Pacman arrive here
     Parent -> the Node that it came from
+    AccumulatedCost -> Cost it took to arrive here
     """
     def __init__(self):
         self.__position = None
         self.__action = None
         self.__parent = None
+        self.__accumulatedCost = 0
         
     def setPosition(self, position):
         self.__position = position
@@ -91,6 +93,12 @@ class SearchNode():
         return self
     def getAction(self):
         return self.__action
+    
+    def setAccumulatedCost(self, cost):
+        self.__accumulatedCost = cost
+        return self
+    def getAccumulatedCost(self):
+        return self.__accumulatedCost
     
     # For debugging purposes
     def __str__(self):
@@ -147,7 +155,7 @@ def depthFirstSearch(problem):
             goalState = None
             break
         
-        # Pop Node from Frontier Stack
+        # Pop Node from Frontier
         currentState = dfsFrontier.pop()
         
         # If Node is goal state -> return Node
@@ -194,7 +202,7 @@ def breadthFirstSearch(problem):
             goalState = None
             break
         
-        # Pop Node from Frontier Stack
+        # Pop Node from Frontier
         currentState = bfsFrontier.pop()
         
         # If Node is goal state -> return Node
@@ -234,8 +242,52 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
-    " TODO *** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    
+    # Closed nodes, initially empty
+    astarClosed = []
+
+    # Frontier nodes, initialize with start State
+    astarFrontier = util.PriorityQueueWithFunction(
+        lambda node:
+            node.getAccumulatedCost() + heuristic(node.getPosition(), problem)
+    )
+    astarFrontier.push(
+        SearchNode()
+            .setPosition(problem.getStartState())
+    )
+
+    while True:        
+        # If Frontier is Empty -> return failure
+        if astarFrontier.isEmpty():
+            goalState = None
+            break
+        
+        # Pop Node from Frontier
+        currentState = astarFrontier.pop()
+        
+        # If Node is goal state -> return Node
+        if (problem.isGoalState(currentState.getPosition())):
+            goalState = currentState
+            break
+        
+        # If currentState was not already closed, add to closed and explore (add its successors to frontier)
+        if currentState not in astarClosed:
+            astarClosed.append(currentState)
+            for successor in problem.getSuccessors(currentState.getPosition()):
+                astarFrontier.push(
+                    SearchNode()
+                        .setPosition(successor[0])
+                        .setAction(successor[1])
+                        .setParent(currentState)
+                        .setAccumulatedCost(currentState.getAccumulatedCost() + successor[2])
+                )
+
+    # If there's a solution, return actions, otherwise exit
+    if goalState:
+        return getActionsFromGoalState(goalState)
+    else:
+        print "This problem is not solvable"
+        exit(0)
 
 # Abbreviations
 bfs = breadthFirstSearch
