@@ -64,56 +64,55 @@ class SearchProblem:
 
 class SearchNode():
     """
-    Class that represents a Node for searching algorithms like BFS and DFS.
-    Position -> tuple (i,j) indicating the (x,y) coordinates inside the Pacman Matrix
+    Class that represents a Node for uninformed search algorithms
+    State -> State that the Node represents
     Action -> the action that made Pacman arrive here
     Parent -> the Node that it came from
     AccumulatedCost -> Cost it took to arrive here
     """
     def __init__(self):
-        self.__position = None
-        self.__action = None
-        self.__parent = None
-        self.__accumulatedCost = 0
+        self._state = None
+        self._action = None
+        self._parent = None
+        self._accumulatedCost = 0
         
-    def setPosition(self, position):
-        self.__position = position
+    def setState(self, state):
+        self._state = state
         return self
-    def getPosition(self):
-        return self.__position
+    def getState(self):
+        return self._state
     
     def setParent(self, parent):
-        self.__parent = parent
+        self._parent = parent
         return self
     def getParent(self):
-        return self.__parent
+        return self._parent
     
     def setAction(self, action):
-        self.__action = action
+        self._action = action
         return self
     def getAction(self):
-        return self.__action
+        return self._action
     
     def setAccumulatedCost(self, cost):
-        self.__accumulatedCost = cost
+        self._accumulatedCost = cost
         return self
     def getAccumulatedCost(self):
-        return self.__accumulatedCost
+        return self._accumulatedCost
     
     # For debugging purposes
     def __str__(self):
-        s = " POSITION: " + str(self.__position) + "\n ACTION: " + str(self.__action)
-        if (self.__parent):
-            s+="\n PARENT: " + str(self.__parent.getPosition()) + "\n"
+        s = "STATE: \n" + str(self._state) + "\n ACTION: " + str(self._action)
+        if (self._parent):
+            s+="\nPARENT: \n" + str(self._parent.getState()) + "\n"
         else:
-            s+="\n PARENT: " + "No parent" + "\n"
+            s+="\nPARENT: " + "No parent" + "\n"
         return s
 
     def __eq__(self, other):
         if isinstance(other, SearchNode):
-            return self.getPosition() == other.getPosition()
+            return self.getState() == other.getState()
         return NotImplemented
-
 
 def tinyMazeSearch(problem):
     """
@@ -146,7 +145,7 @@ def depthFirstSearch(problem):
     dfsFrontier = util.Stack()
     dfsFrontier.push(
         SearchNode()
-            .setPosition(problem.getStartState())
+            .setState(problem.getStartState())
     )
 
     while True:        
@@ -159,17 +158,17 @@ def depthFirstSearch(problem):
         currentState = dfsFrontier.pop()
         
         # If Node is goal state -> return Node
-        if (problem.isGoalState(currentState.getPosition())):
+        if (problem.isGoalState(currentState.getState())):
             goalState = currentState
             break
         
         # If currentState was not already closed, add to closed and explore (add its successors to frontier)
         if currentState not in dfsClosed:
             dfsClosed.append(currentState)
-            for successor in problem.getSuccessors(currentState.getPosition()):
+            for successor in problem.getSuccessors(currentState.getState()):
                 dfsFrontier.push(
                     SearchNode()
-                        .setPosition(successor[0])
+                        .setState(successor[0])
                         .setAction(successor[1])
                         .setParent(currentState)
                 )
@@ -193,7 +192,7 @@ def breadthFirstSearch(problem):
     bfsFrontier = util.Queue()
     bfsFrontier.push(
         SearchNode()
-            .setPosition(problem.getStartState())
+            .setState(problem.getStartState())
     )
 
     while True:        
@@ -206,17 +205,17 @@ def breadthFirstSearch(problem):
         currentState = bfsFrontier.pop()
         
         # If Node is goal state -> return Node
-        if (problem.isGoalState(currentState.getPosition())):
+        if (problem.isGoalState(currentState.getState())):
             goalState = currentState
             break
         
         # If currentState was not already closed, add to closed and explore (add its successors to frontier)
         if currentState not in bfsClosed:
             bfsClosed.append(currentState)
-            for successor in problem.getSuccessors(currentState.getPosition()):
+            for successor in problem.getSuccessors(currentState.getState()):
                 bfsFrontier.push(
                     SearchNode()
-                        .setPosition(successor[0])
+                        .setState(successor[0])
                         .setAction(successor[1])
                         .setParent(currentState)
                 )
@@ -248,12 +247,12 @@ def aStarSearch(problem, heuristic=nullHeuristic):
 
     # Frontier nodes, initialize with start State
     astarFrontier = util.PriorityQueueWithFunction(
-        lambda node:
-            node.getAccumulatedCost() + heuristic(node.getPosition(), problem)
+        lambda state:
+            state.getAccumulatedCost() + heuristic(state.getState(), problem)
     )
     astarFrontier.push(
         SearchNode()
-            .setPosition(problem.getStartState())
+            .setState(problem.getStartState())
     )
 
     while True:        
@@ -266,17 +265,17 @@ def aStarSearch(problem, heuristic=nullHeuristic):
         currentState = astarFrontier.pop()
         
         # If Node is goal state -> return Node
-        if (problem.isGoalState(currentState.getPosition())):
+        if (problem.isGoalState(currentState.getState())):
             goalState = currentState
             break
         
         # If currentState was not already closed, add to closed and explore (add its successors to frontier)
         if currentState not in astarClosed:
             astarClosed.append(currentState)
-            for successor in problem.getSuccessors(currentState.getPosition()):
+            for successor in problem.getSuccessors(currentState.getState()):
                 astarFrontier.push(
                     SearchNode()
-                        .setPosition(successor[0])
+                        .setState(successor[0])
                         .setAction(successor[1])
                         .setParent(currentState)
                         .setAccumulatedCost(currentState.getAccumulatedCost() + successor[2])
