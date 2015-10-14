@@ -283,8 +283,6 @@ class CornersProblemState():
     def setVisitedCorners(self, visitedCorners):
         self._visitedCorners = visitedCorners
         return self
-    def visitCorner(self, corner):
-        self._visitedCorners.append(corner)
 
     def isGoalState(self, allCorners):
         return set(self._visitedCorners) == set(allCorners)
@@ -313,7 +311,7 @@ class CornersProblem(search.SearchProblem):
         self.costFn = costFn
         self.startingPosition = startingGameState.getPacmanPosition()
         top, right = self.walls.height-2, self.walls.width-2
-        self.corners = [(1,1), (1,top), (right, 1), (right, top)]
+        self.corners = ((1,1), (1,top), (right, 1), (right, top))
         for corner in self.corners:
             if not startingGameState.hasFood(*corner):
                 print 'Warning: no food in corner ' + str(corner)
@@ -406,11 +404,27 @@ def cornersHeuristic(state, problem):
     shortest path from the state to a goal of the problem; i.e.  it should be
     admissible (as well as consistent).
     """
+    
+    currentState = state.getPosition()
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
-    " TODO *** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    remainingCorners = filter(lambda corner : corner not in state.getVisitedCorners(), corners)
+
+    # Heuristic function :
+        # If there are more than two corners to visit
+            # From the nearest corner, calculate the distance to the furthest corner
+            # Sum these two distances
+        # In case there's only one corner left to visit
+            # Calculate that distance
+        # In case there are no more corners left to visit
+            # Return 0
+
+    (minValue, minCorner) = min(map(lambda corner: (util.manhattanDistance(currentState, corner), corner), remainingCorners) or [(0, 0)])
+    maxValue = max(map(lambda corner: util.manhattanDistance(minCorner, corner), filter(lambda corner : corner != minCorner, remainingCorners)) or [0])
+
+    return minValue + maxValue
+    
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -502,9 +516,25 @@ def foodHeuristic(state, problem):
     Subsequent calls to this heuristic can access
     problem.heuristicInfo['wallCount']
     """
-    position, foodGrid = state
-    " TODO *** YOUR CODE HERE ***"
-    return 0
+
+    currentPosition, foodGrid = state
+
+    allFood = problem.start[1].asList()
+    remainingFood = foodGrid.asList()
+
+    # Heuristic function :
+        # If there are more than two food to visit
+            # From the nearest food, calculate the distance to the furthest food
+            # Sum these two distances
+        # In case there's only one food left to visit
+            # Calculate that distance
+        # In case there are no more food left to visit
+            # Return 0
+
+    (minValue, minFood) = min(map(lambda food: (util.manhattanDistance(currentPosition, food), food), remainingFood) or [(0, 0)])
+    maxValue = max(map(lambda food: util.manhattanDistance(minFood, food), filter(lambda food : food != minFood , remainingFood)) or [0])
+
+    return minValue + maxValue
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
