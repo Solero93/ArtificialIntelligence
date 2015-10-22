@@ -75,7 +75,7 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
-        return successorGameState.getScore()
+        return successorGameState.getScore() + min(map(lambda x : util.manhattanDistance(x.getPosition(),newPos), newGhostStates) or [0])
 
 def scoreEvaluationFunction(currentGameState):
     """
@@ -113,6 +113,8 @@ class MinimaxAgent(MultiAgentSearchAgent):
     """
 
     def getAction(self, gameState):
+      return max(map(lambda action : (minimaxAlgorithm(action, self.depth, True), action), filter(lambda action : action!=Directions.STOP, gameState.getLegalActions())))[1]
+    
         """
           Returns the minimax action from the current gameState using self.depth
           and self.evaluationFunction.
@@ -130,7 +132,25 @@ class MinimaxAgent(MultiAgentSearchAgent):
             Returns the total number of agents in the game
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        
+        """
+        DANGER : the algorithm given in class, considers only 2 player profundity
+	  Profundity 1 -> ALL players have moved, not just 2        
+        """
+    def minimaxAlgorithm(node, depth, mustMax):
+      if depth = 0: # or nodo terminal?!
+	  return self.evaluationFunction(node)
+      if mustMax:
+	alpha = float("-infinity")
+	for nextAction in node.getLegalActions():
+	  for ghost in node.getGhostStates():
+	    alpha = max(alpha, minimax(ghost, depth, True))
+	return alpha
+      else:
+	beta = float("infinity")
+	for nextAction in node.getLegalActions():
+	  beta = min(beta, minimax() 
+	return beta
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
