@@ -113,44 +113,39 @@ class MinimaxAgent(MultiAgentSearchAgent):
     """
 
     def getAction(self, gameState):
-      return max(map(lambda action : (minimaxAlgorithm(action, self.depth, True), action), filter(lambda action : action!=Directions.STOP, gameState.getLegalActions())))[1]
+      return max(map(lambda action : (self.minimaxAlgorithm(gameState.generateSuccessor(0, action), self.depth, 0+1), action), filter(lambda action : action!=Directions.STOP, gameState.getLegalActions(0))))[1]
     
-        """
-          Returns the minimax action from the current gameState using self.depth
-          and self.evaluationFunction.
+    """
+      Returns the minimax action from the current gameState using self.depth
+      and self.evaluationFunction.
 
-          Here are some method calls that might be useful when implementing minimax.
+      Here are some method calls that might be useful when implementing minimax.
 
-          gameState.getLegalActions(agentIndex):
-            Returns a list of legal actions for an agent
-            agentIndex=0 means Pacman, ghosts are >= 1
+      gameState.getLegalActions(agentIndex):
+        Returns a list of legal actions for an agent
+        agentIndex=0 means Pacman, ghosts are >= 1
 
-          gameState.generateSuccessor(agentIndex, action):
-            Returns the successor game state after an agent takes an action
+      gameState.generateSuccessor(agentIndex, action):
+        Returns the successor game state after an agent takes an action
 
-          gameState.getNumAgents():
-            Returns the total number of agents in the game
-        """
-        "*** YOUR CODE HERE ***"
+      gameState.getNumAgents():
+        Returns the total number of agents in the game
+    """
         
-        """
-        DANGER : the algorithm given in class, considers only 2 player profundity
-	  Profundity 1 -> ALL players have moved, not just 2        
-        """
-    def minimaxAlgorithm(node, depth, mustMax):
-      if depth = 0: # or nodo terminal?!
-	  return self.evaluationFunction(node)
-      if mustMax:
-	alpha = float("-infinity")
-	for nextAction in node.getLegalActions():
-	  for ghost in node.getGhostStates():
-	    alpha = max(alpha, minimax(ghost, depth, True))
-	return alpha
+    def minimaxAlgorithm(self, gameState, depth, agentIndex):
+      if depth == 0: # or nodo terminal?! => no hay mas posibilidades de moverse
+        return self.evaluationFunction(gameState)
+      if agentIndex:
+        alpha = float("-infinity")
+        for nextAction in filter(lambda x : x!=Directions.STOP, gameState.getLegalActions(agentIndex)):
+          nextAgentIndex = (agentIndex+1) % gameState.getNumAgents()
+          alpha = max(alpha, self.minimaxAlgorithm(gameState.generateSuccessor(agentIndex, nextAction), depth if nextAgentIndex else depth-1, agentIndex=nextAgentIndex))
+        return alpha          
       else:
-	beta = float("infinity")
-	for nextAction in node.getLegalActions():
-	  beta = min(beta, minimax() 
-	return beta
+        beta = float("infinity")
+        for nextAction in filter(lambda x : x!=Directions.STOP, gameState.getLegalActions(agentIndex)):
+          beta = min(beta, self.minimaxAlgorithm(gameState.generateSuccessor(agentIndex, nextAction), depth, agentIndex=agentIndex+1))
+        return beta
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
