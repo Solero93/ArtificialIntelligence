@@ -75,7 +75,7 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
-        return successorGameState.getScore() + min(map(lambda x : util.manhattanDistance(x.getPosition(),newPos), newGhostStates) or [0])
+        return successorGameState.getScore() + min(newGhostStates or [0], key=lambda x : util.manhattanDistance(x.getPosition(),newPos))
 
 def scoreEvaluationFunction(currentGameState):
     """
@@ -113,9 +113,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
     """
 
     def getAction(self, gameState):
-      return max(map(lambda action : (self.minimaxAlgorithm(gameState.generateSuccessor(0, action), self.depth, 0+1), action), filter(lambda action : action!=Directions.STOP, gameState.getLegalActions(0))))[1]
-    
-    """
+      """
       Returns the minimax action from the current gameState using self.depth
       and self.evaluationFunction.
 
@@ -130,22 +128,28 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
       gameState.getNumAgents():
         Returns the total number of agents in the game
-    """
+      """
+      maxAction = (float("-infinity"),Directions.STOP)
+      for action in gameState.getLegalActions(0):#filter(lambda x : x != Directions.STOP, gameState.getLegalActions(0)):
+        miniMaxValue = self.minimaxAlgorithm(gameState.generateSuccessor(0, action), self.depth, 0+1)
+        maxAction = (miniMaxValue, action) if maxAction[0] < miniMaxValue else maxAction
+      return maxAction[1]
         
     def minimaxAlgorithm(self, gameState, depth, agentIndex):
-      if depth == 0: # or nodo terminal?! => no hay mas posibilidades de moverse
+      if depth == 0 or not gameState.getLegalActions(agentIndex):
         return self.evaluationFunction(gameState)
       if agentIndex:
-        alpha = float("-infinity")
-        for nextAction in filter(lambda x : x!=Directions.STOP, gameState.getLegalActions(agentIndex)):
-          nextAgentIndex = (agentIndex+1) % gameState.getNumAgents()
-          alpha = max(alpha, self.minimaxAlgorithm(gameState.generateSuccessor(agentIndex, nextAction), depth if nextAgentIndex else depth-1, agentIndex=nextAgentIndex))
-        return alpha          
-      else:
         beta = float("infinity")
-        for nextAction in filter(lambda x : x!=Directions.STOP, gameState.getLegalActions(agentIndex)):
-          beta = min(beta, self.minimaxAlgorithm(gameState.generateSuccessor(agentIndex, nextAction), depth, agentIndex=agentIndex+1))
-        return beta
+        for nextAction in gameState.getLegalActions(agentIndex):#filter(lambda x : x!=Directions.STOP, gameState.getLegalActions(agentIndex)):
+          nextAgentIndex = (agentIndex+1) % gameState.getNumAgents()
+          nextDepth = depth if nextAgentIndex else depth-1
+          beta = min(beta, self.minimaxAlgorithm(gameState=gameState.generateSuccessor(agentIndex, nextAction), depth=nextDepth, agentIndex=nextAgentIndex))
+        return beta          
+      else:
+        alpha = float("-infinity")
+        for nextAction in gameState.getLegalActions(agentIndex):#filter(lambda x : x!=Directions.STOP, gameState.getLegalActions(agentIndex)):
+          alpha = max(alpha, self.minimaxAlgorithm(gameState=gameState.generateSuccessor(agentIndex, nextAction), depth=depth, agentIndex=agentIndex+1))
+        return alpha
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
@@ -153,11 +157,36 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
     """
 
     def getAction(self, gameState):
-        """
-          Returns the minimax action using self.depth and self.evaluationFunction
-        """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+      """
+        Returns the minimax action using self.depth and self.evaluationFunction
+      """
+      maxAction = (float("-infinity"),Directions.STOP)
+      for action in gameState.getLegalActions(0):#filter(lambda x : x != Directions.STOP, gameState.getLegalActions(0)):
+        alphaBetaValue = self.alphaBetaAlgorithm(gameState.generateSuccessor(0, action), self.depth, 0+1, float("-infinity"), float("infinity"))
+        maxAction = (alphaBetaValue, action) if maxAction[0] < alphaBetaValue else maxAction
+      return maxAction[1]
+    
+    def alphaBetaAlgorithm(self, gameState, depth, agentIndex, alpha, beta):
+      if depth == 0 or not gameState.getLegalActions(agentIndex):
+        return self.evaluationFunction(gameState)
+      if agentIndex:
+        v = float("infinity")
+        for nextAction in gameState.getLegalActions(agentIndex):#filter(lambda x : x!=Directions.STOP, gameState.getLegalActions(agentIndex)):
+          nextAgentIndex = (agentIndex+1) % gameState.getNumAgents()
+          nextDepth = depth if nextAgentIndex else depth-1
+          v = min(v, self.alphaBetaAlgorithm(gameState=gameState.generateSuccessor(agentIndex, nextAction), depth=nextDepth, agentIndex=nextAgentIndex, alpha=alpha, beta=beta))
+          if v <= alpha:
+            return v
+          beta = min(beta, v)
+        return v          
+      else:
+        v = float("-infinity")
+        for nextAction in gameState.getLegalActions(agentIndex):#filter(lambda x : x!=Directions.STOP, gameState.getLegalActions(agentIndex)):
+          v = max(v, self.alphaBetaAlgorithm(gameState=gameState.generateSuccessor(agentIndex, nextAction), depth=depth, agentIndex=agentIndex+1, alpha=alpha, beta=beta))
+          if v >= beta:
+            return v
+          alpha = max(alpha, v)
+        return v
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
@@ -171,8 +200,29 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
           All ghosts should be modeled as choosing uniformly at random from their
           legal moves.
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        maxAction = (float("-infinity"),Directions.STOP)
+        for action in gameState.getLegalActions(0):#filter(lambda x : x != Directions.STOP, gameState.getLegalActions(0)):
+          expectimaxValue = self.expectimaxAlgorithm(gameState.generateSuccessor(0, action), self.depth, 0+1)
+          maxAction = (expectimaxValue, action) if maxAction[0] < expectimaxValue else maxAction
+        return maxAction[1]
+        
+    def expectimaxAlgorithm(self, gameState, depth, agentIndex):
+      if depth == 0 or not gameState.getLegalActions(agentIndex):
+        return self.evaluationFunction(gameState)
+      if agentIndex:
+        beta = 0
+        numActions = 0
+        for nextAction in gameState.getLegalActions(agentIndex):#filter(lambda x : x!=Directions.STOP, gameState.getLegalActions(agentIndex)):
+          numActions += 1
+          nextAgentIndex = (agentIndex+1) % gameState.getNumAgents()
+          nextDepth = depth if nextAgentIndex else depth-1
+          beta = beta + self.expectimaxAlgorithm(gameState=gameState.generateSuccessor(agentIndex, nextAction), depth=nextDepth, agentIndex=nextAgentIndex)
+        return beta/numActions          
+      else:
+        alpha = float("-infinity")
+        for nextAction in gameState.getLegalActions(agentIndex):#filter(lambda x : x!=Directions.STOP, gameState.getLegalActions(agentIndex)):
+          alpha = max(alpha, self.expectimaxAlgorithm(gameState=gameState.generateSuccessor(agentIndex, nextAction), depth=depth, agentIndex=agentIndex+1))
+        return alpha
 
 def betterEvaluationFunction(currentGameState):
     """
