@@ -74,8 +74,9 @@ class ReflexAgent(Agent):
         newGhostStates = successorGameState.getGhostStates()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
-        "*** YOUR CODE HERE ***"
-        return successorGameState.getScore() + min(newGhostStates or [0], key=lambda x : util.manhattanDistance(x.getPosition(),newPos))
+        nearestGhostDistance = min(map(lambda x : util.manhattanDistance(x.getPosition(),newPos), newGhostStates or [(0,0)]))
+        nearestFoodDistance = min(map(lambda x : util.manhattanDistance(x,newPos), newFood.asList() or [(0,0)]))
+        return successorGameState.getScore() + 5/nearestFoodDistance - (0 if nearestGhostDistance>1 else float("inf"))
 
 def scoreEvaluationFunction(currentGameState):
     """
@@ -229,8 +230,15 @@ def betterEvaluationFunction(currentGameState):
 
       DESCRIPTION: <write something here so we know what you did>
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # Useful information you can extract from a GameState (pacman.py)
+    newPos = currentGameState.getPacmanPosition()
+    newFood = currentGameState.getFood()
+    newGhostStates = currentGameState.getGhostStates()
+    newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+
+    nearestGhostDistance = min(map(lambda x : util.manhattanDistance(x.getPosition(),newPos), newGhostStates or [(0,0)]))
+    nearestFoodDistance = min(map(lambda x : util.manhattanDistance(x,newPos), newFood.asList() or [(0,0)]))
+    return currentGameState.getScore() + 5/nearestFoodDistance - (0 if nearestGhostDistance>1 else float("inf"))
 
 # Abbreviation
 better = betterEvaluationFunction
