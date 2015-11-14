@@ -160,13 +160,9 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
       """
         Returns the minimax action using self.depth and self.evaluationFunction
       """
-      maxAction = (float("-infinity"),Directions.STOP)
-      for action in gameState.getLegalActions(0):#filter(lambda x : x != Directions.STOP, gameState.getLegalActions(0)):
-        alphaBetaValue = self.alphabetaFunction(gameState.generateSuccessor(0, action), self.depth, 0+1, float("-infinity"), float("infinity"))
-        maxAction = (alphaBetaValue, action) if maxAction[0] < alphaBetaValue else maxAction
-      return maxAction[1]
-    
-    def alphabetaFunction(self, gameState, depth, agentIndex, alpha, beta):
+      return self.alphabetaFunction(gameState=gameState, depth=self.depth, agentIndex=0, alpha=float("-infinity"), beta=float("infinity"), maxAction=None)
+
+    def alphabetaFunction(self, gameState, depth, agentIndex, alpha, beta, maxAction):
       if depth == 0 or gameState.isWin() or gameState.isLose():
         return self.evaluationFunction(gameState)
       if agentIndex:
@@ -174,19 +170,21 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         for nextAction in gameState.getLegalActions(agentIndex):#filter(lambda x : x!=Directions.STOP, gameState.getLegalActions(agentIndex)):
           nextAgentIndex = (agentIndex+1) % gameState.getNumAgents()
           nextDepth = depth if nextAgentIndex else depth-1
-          v = min(v, self.alphabetaFunction(gameState=gameState.generateSuccessor(agentIndex, nextAction), depth=nextDepth, agentIndex=nextAgentIndex, alpha=alpha, beta=beta))
-          if v <= alpha:
+          v = min(v, self.alphabetaFunction(gameState=gameState.generateSuccessor(agentIndex, nextAction), depth=nextDepth, agentIndex=nextAgentIndex, alpha=alpha, beta=beta, maxAction=maxAction))
+          if v < alpha:
             return v
           beta = min(beta, v)
         return v          
       else:
         v = float("-infinity")
         for nextAction in gameState.getLegalActions(agentIndex):#filter(lambda x : x!=Directions.STOP, gameState.getLegalActions(agentIndex)):
-          v = max(v, self.alphabetaFunction(gameState=gameState.generateSuccessor(agentIndex, nextAction), depth=depth, agentIndex=agentIndex+1, alpha=alpha, beta=beta))
-          if v >= beta:
+          v = max(v, self.alphabetaFunction(gameState=gameState.generateSuccessor(agentIndex, nextAction), depth=depth, agentIndex=agentIndex+1, alpha=alpha, beta=beta, maxAction=maxAction))
+          if v > beta:
             return v
+          maxAction = nextAction if depth == self.depth and alpha < v else maxAction 
           alpha = max(alpha, v)
-        return v
+        return maxAction if depth == self.depth else v
+      
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
