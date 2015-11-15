@@ -236,14 +236,15 @@ def betterEvaluationFunction(currentGameState):
     newGhostStates = currentGameState.getGhostStates()
     newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
-    nearestAstarFoodDistance = ms.aStarSearchWithMaxDepth(ms.NearestFoodProblem(currentGameState), lambda x,y : 0, 7)
+    maxDepth = 5
+    nearestAstarFoodDistance = ms.aStarSearchWithMaxDepth(ms.NearestFoodProblem(currentGameState), ms.manhattanFoodHeuristic, maxDepth)
     nearestManhattanFoodDistance = min(map(lambda x : util.manhattanDistance(x,newPos), newFood or [(0,0)]))
-    nearestFoodDistance = nearestAstarFoodDistance if nearestAstarFoodDistance!=-1 else nearestManhattanFoodDistance
+    nearestFoodDistance = nearestAstarFoodDistance if nearestAstarFoodDistance!=-1 else max(maxDepth+1,nearestManhattanFoodDistance)
     
-    nearestAstarGhostDistance = ms.aStarSearchWithMaxDepth(ms.NearestGhostProblem(currentGameState), lambda x,y : 0, 2)
+    nearestAstarGhostDistance = ms.aStarSearchWithMaxDepth(ms.NearestGhostProblem(currentGameState), ms.manhattanGhostHeuristic, 2)
     nearestManhattanGhostDistance = min(map(lambda x : util.manhattanDistance(x.getPosition(),newPos), newGhostStates or [(0,0)]))
     nearestGhostDistance = nearestAstarGhostDistance if nearestAstarGhostDistance!=-1 else nearestManhattanGhostDistance
     
-    return currentGameState.getScore() + 5/nearestFoodDistance - (0 if nearestGhostDistance>1 else float("inf"))
+    return 10*currentGameState.getScore() + 100/nearestFoodDistance - (0 if nearestGhostDistance>1 else float("inf"))
 # Abbreviation
 better = betterEvaluationFunction

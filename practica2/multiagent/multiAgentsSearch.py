@@ -187,6 +187,12 @@ class SearchNode():
             return self.getState() == other.getState() and self.getDepth() == other.getDepth()
         return NotImplemented
 
+def manhattanFoodHeuristic(position, problem, info={}):
+    return min(map(lambda x : util.manhattanDistance(position[0],x), problem.getStartState()[1].asList() or [(0,0)]))
+
+def manhattanGhostHeuristic(position, problem, info={}):
+    return min(map(lambda x : util.manhattanDistance(position[0],x), problem.getStartState()[1] or [(0,0)]))
+
 def aStarSearchWithMaxDepth(problem, heuristic, maxDepth):
     """Search the node that has the lowest combined cost and heuristic first."""
     
