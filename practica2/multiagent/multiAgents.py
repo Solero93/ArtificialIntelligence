@@ -18,6 +18,7 @@ from game import Directions
 import random, util
 
 from game import Agent
+import multiAgentsSearch as ms
 
 class ReflexAgent(Agent):
     """
@@ -70,12 +71,12 @@ class ReflexAgent(Agent):
         # Useful information you can extract from a GameState (pacman.py)
         successorGameState = currentGameState.generatePacmanSuccessor(action)
         newPos = successorGameState.getPacmanPosition()
-        newFood = successorGameState.getFood()
+        newFood = successorGameState.getFood().asList()
         newGhostStates = successorGameState.getGhostStates()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         nearestGhostDistance = min(map(lambda x : util.manhattanDistance(x.getPosition(),newPos), newGhostStates or [(0,0)]))
-        nearestFoodDistance = min(map(lambda x : util.manhattanDistance(x,newPos), newFood.asList() or [(0,0)]))
+        nearestFoodDistance = min(map(lambda x : util.manhattanDistance(x,newPos), newFood or [(0,0)]))
         return successorGameState.getScore() + 5/nearestFoodDistance - (0 if nearestGhostDistance>1 else float("inf"))
 
 def scoreEvaluationFunction(currentGameState):
@@ -209,8 +210,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
       if depth == 0 or gameState.isWin() or gameState.isLose():
         return self.evaluationFunction(gameState)
       if agentIndex:
-        beta = 0
-        numActions = 0
+        beta, numActions = 0, 0
         for nextAction in gameState.getLegalActions(agentIndex):#filter(lambda x : x!=Directions.STOP, gameState.getLegalActions(agentIndex)):
           numActions += 1
           nextAgentIndex = (agentIndex+1) % gameState.getNumAgents()
@@ -232,14 +232,18 @@ def betterEvaluationFunction(currentGameState):
     """
     # Useful information you can extract from a GameState (pacman.py)
     newPos = currentGameState.getPacmanPosition()
-    newFood = currentGameState.getFood()
+    newFood = currentGameState.getFood().asList()
     newGhostStates = currentGameState.getGhostStates()
     newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
-    nearestGhostDistance = min(map(lambda x : util.manhattanDistance(x.getPosition(),newPos), newGhostStates or [(0,0)]))
-    nearestFoodDistance = min(map(lambda x : util.manhattanDistance(x,newPos), newFood.asList() or [(0,0)]))
+    nearestAstarFoodDistance = ms.aStarSearchWithMaxDepth(ms.NearestFoodProblem(currentGameState), lambda x,y : 0, 7)
+    nearestManhattanFoodDistance = min(map(lambda x : util.manhattanDistance(x,newPos), newFood or [(0,0)]))
+    nearestFoodDistance = nearestAstarFoodDistance if nearestAstarFoodDistance!=-1 else nearestManhattanFoodDistance
+    
+    nearestAstarGhostDistance = ms.aStarSearchWithMaxDepth(ms.NearestGhostProblem(currentGameState), lambda x,y : 0, 2)
+    nearestManhattanGhostDistance = min(map(lambda x : util.manhattanDistance(x.getPosition(),newPos), newGhostStates or [(0,0)]))
+    nearestGhostDistance = nearestAstarGhostDistance if nearestAstarGhostDistance!=-1 else nearestManhattanGhostDistance
+    
     return currentGameState.getScore() + 5/nearestFoodDistance - (0 if nearestGhostDistance>1 else float("inf"))
-
 # Abbreviation
 better = betterEvaluationFunction
-
