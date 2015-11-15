@@ -241,9 +241,7 @@ def betterEvaluationFunction(currentGameState):
     nearestManhattanFoodDistance = min(map(lambda x : util.manhattanDistance(x,newPos), newFood or [(0,0)]))
     nearestFoodDistance = nearestAstarFoodDistance if nearestAstarFoodDistance!=-1 else max(maxDepth+1,nearestManhattanFoodDistance)
     
-    nearestAstarGhostDistance = ms.aStarSearchWithMaxDepth(ms.NearestGhostProblem(currentGameState), ms.manhattanGhostHeuristic, 2)
-    nearestManhattanGhostDistance = min(map(lambda x : util.manhattanDistance(x.getPosition(),newPos), newGhostStates or [(0,0)]))
-    nearestGhostDistance = nearestAstarGhostDistance if nearestAstarGhostDistance!=-1 else nearestManhattanGhostDistance
+    nearestGhostDistance = min(map(lambda x : util.manhattanDistance(x.getPosition(),newPos), newGhostStates or [(0,0)]))
     
     return 10*currentGameState.getScore() + 100/nearestFoodDistance - (0 if nearestGhostDistance>1 else float("inf"))
 # Abbreviation
