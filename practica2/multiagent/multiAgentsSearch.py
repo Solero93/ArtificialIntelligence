@@ -14,8 +14,7 @@
 
 
 """
-In search.py, you will implement generic search algorithms which are called by
-Pacman agents (in searchAgents.py).
+Auxiliar file to solve multiAgents Problems
 """
 
 from game import Directions
@@ -27,8 +26,9 @@ from copy import copy
 
 class NearestFoodProblem():
     """
-    A search problem associated with finding the a path that collects all of the
-    food (dots) in a Pacman game.
+    A search problem associated with finding any food from where Pacman is and calculating the minimum distance
+
+    To achieve this, I've modified the SearchFoodProblem from last project
 
     A search state in this problem is a tuple ( pacmanPosition, foodGrid ) where
       pacmanPosition: a tuple (x,y) of integers specifying Pacman's position
@@ -44,6 +44,7 @@ class NearestFoodProblem():
     def getStartState(self):
         return self.start
 
+    ##### I've modified this, because I want to find any food, not all of them
     def isGoalState(self, state):
         return state[1].count() < self.start[1].count()
 
@@ -81,6 +82,7 @@ class SearchNode():
     State -> State that the Node represents
     Action -> the action that made Pacman arrive here
     Parent -> the Node that it came from
+    Depth -> How deep this node is from the initial
     AccumulatedCost -> Cost it took to arrive here
     """
     def __init__(self):
@@ -134,14 +136,20 @@ class SearchNode():
             return self.getState() == other.getState() and self.getDepth() == other.getDepth()
         return NotImplemented
 
+    def __hash__(self):
+        return hash(self.getState())
+
 def manhattanFoodHeuristic(position, problem, info={}):
     return min(map(lambda x : util.manhattanDistance(position[0],x), problem.getStartState()[1].asList() or [(0,0)]))
 
 def aStarSearchWithMaxDepth(problem, heuristic, maxDepth):
-    """Search the node that has the lowest combined cost and heuristic first."""
+    """
+    Returns the length of the path if found, otherwise returns -1
+        Since it has limited depth so it won't be so costly
+    """
     
     # Closed nodes, initially empty
-    astarClosed = []
+    astarClosed = set([])
 
     # Frontier nodes, initialize with start State
     astarFrontier = util.PriorityQueueWithFunction(
@@ -169,7 +177,7 @@ def aStarSearchWithMaxDepth(problem, heuristic, maxDepth):
         
         # If currentState was not already closed, add to closed and explore (add its successors to frontier)
         if currentState not in astarClosed and currentState.getDepth() < maxDepth:
-            astarClosed.append(currentState)
+            astarClosed.add(currentState)
             for successor in problem.getSuccessors(currentState.getState()):
                 astarFrontier.push(
                     SearchNode()
@@ -180,15 +188,12 @@ def aStarSearchWithMaxDepth(problem, heuristic, maxDepth):
                         .setDepth(currentState.getDepth() + 1)
                 )
 
-    # If there's a solution, return actions, otherwise exit
+    # If there's a solution, return length of actions, otherwise return -1
     if goalState:
         return len(getActionsFromGoalState(goalState))
     else:
         return -1
 
-"""
-Auxiliar functions
-"""
 def getActionsFromGoalState(goalState):
     """
     Returns actions to take, given the goal node
