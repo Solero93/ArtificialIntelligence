@@ -83,10 +83,7 @@ class QLearningAgent(ReinforcementAgent):
           HINT: To pick randomly from a list, use random.choice(list)
         """
         # Pick Action
-        legalActions = self.getLegalActions(state)
-        action = None
-
-        return action
+        return random.choice(self.getLegalActions(state)) if util.flipCoin(self.epsilon) else self.getPolicy(state)
 
     def update(self, state, action, nextState, reward):
         """
